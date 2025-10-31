@@ -1125,6 +1125,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     # layout is no longer used, but kept so we know how to render old dashboards.
     layout = Column(MutableList.as_mutable(JSONB), default=[])
     dashboard_filters_enabled = Column(db.Boolean, default=False)
+    dashboard_filters_hidden = Column(db.Boolean, default=False)
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
@@ -1212,7 +1213,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return cls.query.filter(cls.slug == slug, cls.org == org).one()
 
     def fork(self, user):
-        forked_list = ["org", "layout", "dashboard_filters_enabled", "tags"]
+        forked_list = ["org", "layout", "dashboard_filters_enabled", "dashboard_filters_hidden", "tags"]
 
         kwargs = {a: getattr(self, a) for a in forked_list}
         forked_dashboard = Dashboard(name="Copy of (#{}) {}".format(self.id, self.name), user=user, **kwargs)

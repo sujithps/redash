@@ -34,6 +34,15 @@ function DashboardSettings({ dashboardConfiguration }) {
         data-test="DashboardFiltersCheckbox">
         Use Dashboard Level Filters
       </Checkbox>
+      {dashboard.dashboard_filters_enabled && (
+        <Checkbox
+          checked={!!dashboard.dashboard_filters_hidden}
+          onChange={({ target }) => updateDashboard({ dashboard_filters_hidden: target.checked })}
+          data-test="HideDashboardFiltersCheckbox"
+          className="m-t-10">
+          Hide Dashboard Filters
+        </Checkbox>
+      )}
     </div>
   );
 }
@@ -138,7 +147,7 @@ function DashboardComponent(props) {
           />
         </div>
       )}
-      {!isEmpty(filters) && (
+      {!isEmpty(filters) && !dashboard.dashboard_filters_hidden && (
         <div className="m-b-10 p-15 bg-white tiled" data-test="DashboardFilters">
           <Filters filters={filters} onChange={setFilters} />
         </div>

@@ -27,12 +27,12 @@ function PublicDashboard({ dashboard }) {
   return (
     <div className="container p-t-10 p-b-20">
       <PageHeader title={dashboard.name} />
-      {!isEmpty(globalParameters) && (
+      {!isEmpty(globalParameters) && !dashboard.dashboard_filters_hidden && (
         <div className="m-b-10 p-15 bg-white tiled">
           <Parameters parameters={globalParameters} onValuesChange={refreshDashboard} />
         </div>
       )}
-      {!isEmpty(filters) && (
+      {!isEmpty(filters) && !dashboard.dashboard_filters_hidden && (
         <div className="m-b-10 p-15 bg-white tiled">
           <Filters filters={filters} onChange={setFilters} />
         </div>
