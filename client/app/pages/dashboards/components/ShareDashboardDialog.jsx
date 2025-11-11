@@ -35,7 +35,7 @@ class ShareDashboardDialog extends React.Component {
     };
 
     this.apiUrl = replace(API_SHARE_URL, "{id}", dashboard.id);
-    this.enabled = this.props.hasOnlySafeQueries || dashboard.publicAccessEnabled;
+    this.enabled = this.props.hasOnlySafeQueries || dashboard.publicAccessEnabled || dashboard.allow_text_parameters;
   }
 
   static get headerContent() {
@@ -99,10 +99,10 @@ class ShareDashboardDialog extends React.Component {
     return (
       <Modal {...dialog.props} title={headerContent} footer={null}>
         <Form layout="horizontal">
-          {!hasOnlySafeQueries && (
+          {!hasOnlySafeQueries && !dashboard.allow_text_parameters && (
             <Form.Item>
               <Alert
-                message="For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type."
+                message="For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type, or enable 'Allow Text Parameters in Embedded Dashboard' in dashboard settings."
                 type="error"
               />
             </Form.Item>

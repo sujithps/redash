@@ -227,6 +227,7 @@ class DashboardResource(BaseResource):
                 "is_archived",
                 "dashboard_filters_enabled",
                 "dashboard_filters_hidden",
+                "allow_text_parameters",
                 "options",
             ),
         )

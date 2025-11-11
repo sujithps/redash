@@ -41,6 +41,22 @@ def error_response(message, http_status=400):
     return {"job": {"status": 4, "error": message}}, http_status
 
 
+def dashboard_allows_text_parameters(user):
+    """Check if the dashboard associated with the user's API key allows text parameters."""
+    if not user.is_api_user():
+        return False
+
+    # Get the object associated with the API key (stored in ApiUser.object)
+    # This is the actual object (e.g., Dashboard), not the ApiKey itself
+    obj = getattr(user, "object", None)
+
+    # If the object is a Dashboard, we can check if it allows text parameters
+    if isinstance(obj, models.Dashboard):
+        return getattr(obj, "allow_text_parameters", False)
+
+    return False
+
+
 error_messages = {
     "unsafe_when_shared": error_response(
         "This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.",
@@ -260,7 +276,7 @@ class QueryResultResource(BaseResource):
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
-        allow_executing_with_view_only_permissions = query.parameterized.is_safe
+        allow_executing_with_view_only_permissions = query.parameterized.is_safe or dashboard_allows_text_parameters(self.current_user)
         if "apply_auto_limit" in params:
             should_apply_auto_limit = params.get("apply_auto_limit", False)
         else:
@@ -278,9 +294,21 @@ class QueryResultResource(BaseResource):
         else:
             if not query.parameterized.is_safe:
                 if current_user.is_api_user():
-                    return error_messages["unsafe_when_shared"]
+                    # Allow execution if the dashboard allows text parameters
+                    if not dashboard_allows_text_parameters(current_user):
+                        return error_messages["unsafe_when_shared"]
                 else:
                     return error_messages["unsafe_on_view_only"]
+            # If we reach here, either the query is safe or we're allowing unsafe parameters via dashboard setting
+            if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
+                return run_query(
+                    query.parameterized,
+                    parameter_values,
+                    query.data_source,
+                    query_id,
+                    should_apply_auto_limit,
+                    max_age,
+                )
             else:
                 return error_messages["no_permission"]
 

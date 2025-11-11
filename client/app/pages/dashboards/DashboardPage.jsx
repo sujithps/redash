@@ -43,6 +43,13 @@ function DashboardSettings({ dashboardConfiguration }) {
           Hide Dashboard Filters
         </Checkbox>
       )}
+      <Checkbox
+        checked={!!dashboard.allow_text_parameters}
+        onChange={({ target }) => updateDashboard({ allow_text_parameters: target.checked })}
+        data-test="AllowTextParametersCheckbox"
+        className="m-t-10">
+        Allow Text Parameters in Embedded Dashboard
+      </Checkbox>
     </div>
   );
 }
